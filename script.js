@@ -43,7 +43,7 @@ function shuffleDeck(){
         deck[i] = deck[j];
         deck[j] = temp;
     }
-    console.log(deck)
+    // console.log(deck)
 }
 
 function startGame (){
@@ -60,7 +60,60 @@ function startGame (){
         dealerSum += getValue(card);
         document.querySelector('#dealer-cards').append(cardImg);
 
+    };
+
+    for(let i = 0; i < 2; i++){
+        let cardImg = document.createElement('img')
+        let card = deck.pop();
+        cardImg.src = "./cards/" + card + ".png" ;
+        yourAceCount += checkAce(card);
+        yourSum += getValue(card);
+        document.querySelector('#your-cards').append(cardImg);
     }
+    // console.log(yourSum)
+    document.querySelector('#hit').addEventListener('click',hit);
+    document.querySelector('#stay').addEventListener('click',stay);
+}
+
+function hit () {
+    if(!canHit){
+        return;
+    }else{
+        let cardImg = document.createElement('img')
+        let card = deck.pop();
+        cardImg.src = "./cards/" + card + ".png" ;
+        yourAceCount += checkAce(card);
+        yourSum += getValue(card);
+        document.querySelector('#your-cards').append(cardImg);
+    }
+
+    if(reduceAce(yourSum , yourAceCount) > 21){
+        canHit = false ;
+    }
+}
+
+function stay () {
+    dealerSum = reduceAce(dealerSum , dealerAceCount);
+    yourSum = reduceAce(yourSum , yourAceCount);
+
+    canHit = false;
+    document.querySelector('#hidden').src = "/cards/" + hidden + ".png";
+
+    let message = "" ;
+    if(yourSum > 21){
+        message = "You Lose!"
+    }else if(dealerSum > 21){
+        message = "You Win!"
+    }else if (dealerSum == yourSum){
+        message = "Tie!"
+    }else if(yourSum > dealerSum){
+        message = "You Win!"
+    }else if(dealerSum > yourSum){
+        message = "You Lose!"
+    }
+    document.querySelector('#results').innerText = message;
+    document.querySelector('#dealer-sum').innerText = dealerSum;
+    document.querySelector('#your-sum').innerText = yourSum ;
 }
 
 function getValue (card){
@@ -84,4 +137,13 @@ function checkAce(card){
     }else{
         return 0;
     }
+}
+
+function reduceAce (playerSum , playerAceCount){
+    while(playerSum > 21 && playerAceCount > 0){
+        playerSum -= 10;
+        playerAceCount -= 1;
+    }
+    return playerSum ;
+    
 }
